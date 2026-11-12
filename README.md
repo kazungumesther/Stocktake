@@ -4,6 +4,20 @@
 
 Built for places where connectivity is unreliable: a store room, a farm shed, a delivery truck. Every change is saved on the device first, so the app is never waiting on the network.
 
+## Screenshots
+
+### Sign In
+![Stocktake Sign In](screenshots/signin.png)
+
+### Dashboard
+![Stocktake Dashboard](screenshots/dashboard.png)
+
+### Inventory
+![Stocktake Inventory](screenshots/inventory.png)
+
+### Add Item
+![Add Inventory Item](screenshots/add-item.png)
+
 ## Features
 
 - Add, edit and delete items (name, quantity, unit, location, notes) with **no connection needed**
