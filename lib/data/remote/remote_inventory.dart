@@ -1,6 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// An item as it exists on the server.
+
 class RemoteItem {
   const RemoteItem({
     required this.id,
@@ -23,7 +23,7 @@ class RemoteItem {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
-  /// Set by the server on every write. Used as the "what changed since?" cursor.
+  
   final DateTime? serverUpdatedAt;
 
   RemoteItem withServerTime(DateTime time) => RemoteItem(
@@ -66,8 +66,7 @@ class RemoteItem {
       );
 }
 
-/// The server could not be reached (offline, timeout, not signed in, token expired).
-/// This is not the item's fault, so it never counts as a failed attempt.
+
 class RemoteUnavailable implements Exception {
   const RemoteUnavailable(this.message);
   final String message;
@@ -76,7 +75,7 @@ class RemoteUnavailable implements Exception {
   String toString() => message;
 }
 
-/// The server answered but refused the data (for example a rule was violated).
+
 class RemoteRejected implements Exception {
   const RemoteRejected(this.message);
   final String message;
@@ -86,12 +85,12 @@ class RemoteRejected implements Exception {
 }
 
 abstract class RemoteInventory {
-  /// The signed-in user, or null.
+ 
   String? get userId;
 
   Future<void> upsert(List<RemoteItem> items);
 
-  /// Everything the server changed after [since] (everything when null).
+  
   Future<List<RemoteItem>> pullSince(DateTime? since);
 }
 
@@ -142,8 +141,7 @@ class SupabaseRemoteInventory implements RemoteInventory {
     }
   }
 
-  /// Auth problems (PGRST3xx) and server errors (5xx) are worth retrying later
-  /// without blaming the item.
+  
   bool _isTransient(PostgrestException e) {
     final code = e.code ?? '';
     final status = int.tryParse(code);

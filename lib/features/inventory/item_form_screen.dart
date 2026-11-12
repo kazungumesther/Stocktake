@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../data/local/database.dart';
 import '../../providers.dart';
 
-/// Add a new item (no [itemId]) or edit an existing one.
+
 class ItemFormScreen extends ConsumerStatefulWidget {
   const ItemFormScreen({super.key, this.itemId});
 

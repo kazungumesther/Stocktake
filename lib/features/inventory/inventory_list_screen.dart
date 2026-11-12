@@ -28,7 +28,7 @@ class InventoryListScreen extends ConsumerWidget {
           IconButton(
             tooltip: 'Dashboard',
             icon: const Icon(Icons.insights_outlined),
-            onPressed: () => context.push('/dashboard'),
+            onPressed: () => context.go('/dashboard'),
           ),
           PopupMenuButton<_MenuAction>(
             onSelected: (action) => _handleMenu(context, ref, action),
@@ -71,13 +71,18 @@ class InventoryListScreen extends ConsumerWidget {
               ),
               Expanded(
                 child: items.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (error, _) => Center(child: Text('Something went wrong: $error')),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (error, _) =>
+                      Center(child: Text('Something went wrong: $error')),
                   data: (list) {
                     if (list.isEmpty) {
-                      final searching = ref.watch(searchQueryProvider).isNotEmpty;
+                      final searching = ref
+                          .watch(searchQueryProvider)
+                          .isNotEmpty;
                       return _EmptyState(searching: searching);
                     }
+
                     return ListView.builder(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
                       itemCount: list.length,
@@ -97,6 +102,28 @@ class InventoryListScreen extends ConsumerWidget {
         onPressed: () => context.push('/item/new'),
         icon: const Icon(Icons.add),
         label: const Text('Add item'),
+      ),
+
+  
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: 1,
+        onDestinationSelected: (index) {
+          if (index == 0) {
+            context.go('/dashboard');
+          }
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.inventory_2_outlined),
+            selectedIcon: Icon(Icons.inventory_2),
+            label: 'Inventory',
+          ),
+        ],
       ),
     );
   }
@@ -119,19 +146,22 @@ Future<void> _handleMenu(
       );
 
     case _MenuAction.retryFailed:
-      await ref.read(syncControllerProvider.notifier).syncNow(retryFailed: true);
+      await ref
+          .read(syncControllerProvider.notifier)
+          .syncNow(retryFailed: true);
 
     case _MenuAction.signOut:
       final unsynced = await repo.watchUnsyncedCount().first;
       if (!context.mounted) return;
+
       if (unsynced > 0) {
         final confirmed = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('Sign out?'),
             content: Text(
-              '$unsynced change(s) have not synced yet. They stay on this device '
-              'and will sync when you sign back in with the same account.',
+              '$unsynced change(s) have not synced yet. They stay on this '
+              'device and will sync when you sign back in with the same account.',
             ),
             actions: [
               TextButton(
@@ -145,8 +175,10 @@ Future<void> _handleMenu(
             ],
           ),
         );
+
         if (confirmed != true) return;
       }
+
       await Supabase.instance.client.auth.signOut();
   }
 }
@@ -161,6 +193,7 @@ class _ItemTile extends ConsumerWidget {
     final repo = ref.read(inventoryRepositoryProvider);
     final scheme = Theme.of(context).colorScheme;
     final low = item.quantity <= AppConfig.lowStockThreshold;
+
     final details = [
       '${item.quantity} ${item.unit}',
       if (item.location != null && item.location!.isNotEmpty) item.location!,
@@ -194,7 +227,8 @@ class _ItemTile extends ConsumerWidget {
             IconButton(
               tooltip: 'Add one',
               icon: const Icon(Icons.add_circle_outline),
-              onPressed: () => repo.save(item.copyWith(quantity: item.quantity + 1)),
+              onPressed: () =>
+                  repo.save(item.copyWith(quantity: item.quantity + 1)),
             ),
             if (AppConfig.hasSupabase) _SyncIcon(status: item.syncStatus),
           ],
@@ -212,19 +246,20 @@ class _SyncIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+
     return switch (status) {
       SyncStatus.synced => Tooltip(
-          message: 'Synced',
-          child: Icon(Icons.cloud_done_outlined, color: scheme.primary),
-        ),
+        message: 'Synced',
+        child: Icon(Icons.cloud_done_outlined, color: scheme.primary),
+      ),
       SyncStatus.pending => const Tooltip(
-          message: 'Waiting to sync',
-          child: Icon(Icons.schedule),
-        ),
+        message: 'Waiting to sync',
+        child: Icon(Icons.schedule),
+      ),
       SyncStatus.failed => Tooltip(
-          message: 'Sync failed',
-          child: Icon(Icons.error_outline, color: scheme.error),
-        ),
+        message: 'Sync failed',
+        child: Icon(Icons.error_outline, color: scheme.error),
+      ),
     };
   }
 }

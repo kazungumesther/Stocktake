@@ -5,8 +5,7 @@ import 'package:drift/drift.dart';
 import '../local/database.dart';
 import '../remote/remote_inventory.dart';
 
-/// How long to wait before retrying an item the server rejected:
-/// 5s, 10s, 20s, 40s... capped at 15 minutes.
+
 Duration backoffFor(int attempts) {
   if (attempts <= 0) return Duration.zero;
   final seconds = 5 * (1 << min(attempts - 1, 20));
@@ -24,22 +23,22 @@ class SyncResult {
     this.message,
   });
 
-  /// Items sent to the server.
+ 
   final int pushed;
 
-  /// Items the server refused this time.
+  
   final int rejected;
 
-  /// Items received from (or changed by) the server.
+  
   final int pulled;
 
-  /// Local edits that lost to a newer edit made elsewhere.
+
   final int conflicts;
 
-  /// The server couldn't be reached. Nothing was lost; it will be retried.
+ 
   final bool offline;
 
-  /// Another sync was already running.
+ 
   final bool skipped;
 
   final String? message;
@@ -61,11 +60,7 @@ class _Tally {
       );
 }
 
-/// Keeps the local database and the server in step.
-///
-/// Every item carries its own sync state, so "what still needs sending" is just
-/// "every item that isn't synced". One sync is: pull what changed on the server,
-/// merge it with last-write-wins, then push what is still pending.
+
 class SyncService {
   SyncService({
     required AppDatabase db,
@@ -82,12 +77,11 @@ class SyncService {
   final RemoteInventory _remote;
   final DateTime Function() _now;
 
-  /// After this many rejections an item is marked `failed` until the user retries.
+ 
   final int maxAttempts;
   final int batchSize;
 
-  /// Pulls start slightly before the last cursor, so a change committed late is
-  /// never missed. Merging is idempotent, so seeing a row twice is harmless.
+ 
   final Duration pullOverlap;
 
   static const _ownerKey = 'owner';
@@ -119,8 +113,7 @@ class SyncService {
     }
   }
 
-  /// If a different account signs in on this device, its data must not mix with
-  /// the previous account's, so the local copy is cleared first.
+  
   Future<void> _claimDevice(String userId) async {
     final owner = await _db.metaGet(_ownerKey);
     if (owner != null && owner != userId) await _db.wipeAll();
@@ -140,7 +133,7 @@ class SyncService {
     );
   }
 
-  // ---------------------------------------------------------------- pull
+  
 
   Future<void> _pull(_Tally tally) async {
     final stored = await _db.metaGet(_lastPullKey);
@@ -161,8 +154,7 @@ class SyncService {
     }
   }
 
-  /// Last-write-wins: the version with the newer `updatedAt` survives.
-  /// Returns true when the local row changed.
+  
   Future<bool> _merge(RemoteItem remote, _Tally tally) async {
     final local = await (_db.select(_db.stockItems)
           ..where((t) => t.id.equals(remote.id)))
@@ -185,10 +177,10 @@ class SyncService {
       return true;
     }
 
-    // Our copy is the same age or newer: keep it (and push it if it's pending).
+    
     if (!remote.updatedAt.isAfter(local.updatedAt)) return false;
 
-    // The server's copy is newer. If we had an unsent edit, it loses.
+  
     if (local.syncStatus != SyncStatus.synced) tally.conflicts++;
 
     await (_db.update(_db.stockItems)..where((t) => t.id.equals(remote.id))).write(
@@ -209,7 +201,7 @@ class SyncService {
     return true;
   }
 
-  // ---------------------------------------------------------------- push
+ 
 
   Future<void> _push(_Tally tally) async {
     final now = _now();
@@ -228,7 +220,7 @@ class SyncService {
         }
         tally.pushed += batch.length;
       } on RemoteRejected {
-        // One bad item shouldn't hold back the rest, so send them one at a time.
+        
         for (final item in batch) {
           try {
             await _remote.upsert([_toRemote(item)]);
@@ -240,8 +232,7 @@ class SyncService {
           }
         }
       }
-      // RemoteUnavailable is not caught here: it stops the whole sync and the
-      // items simply stay pending, with no attempt counted against them.
+      
     }
   }
 
@@ -251,8 +242,7 @@ class SyncService {
     return !now.isBefore(last.add(backoffFor(item.attempts)));
   }
 
-  /// Only marks the item synced if it wasn't edited while the request was in
-  /// flight. If it was, the newer edit stays pending and goes out next time.
+  
   Future<void> _markSynced(StockItem sent) async {
     await (_db.update(_db.stockItems)
           ..where((t) => t.id.equals(sent.id) & t.updatedAt.equals(sent.updatedAt)))

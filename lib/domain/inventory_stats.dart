@@ -1,7 +1,7 @@
+
 import '../core/config.dart';
 import '../data/local/database.dart';
 
-/// Numbers for the dashboard, worked out from the list of items.
 class InventoryStats {
   const InventoryStats({
     required this.itemCount,
@@ -17,14 +17,23 @@ class InventoryStats {
     List<StockItem> items, {
     int lowThreshold = AppConfig.lowStockThreshold,
   }) {
-    final low = items.where((i) => i.quantity <= lowThreshold).toList()
+    final low = items
+        .where((item) => item.deletedAt == null)
+        .where((item) => item.quantity <= lowThreshold)
+        .toList()
       ..sort((a, b) {
         final byQuantity = a.quantity.compareTo(b.quantity);
         return byQuantity != 0 ? byQuantity : a.name.compareTo(b.name);
       });
+
+    final activeItems = items.where((item) => item.deletedAt == null);
+
     return InventoryStats(
-      itemCount: items.length,
-      totalQuantity: items.fold(0, (sum, i) => sum + i.quantity),
+      itemCount: activeItems.length,
+      totalQuantity: activeItems.fold(
+        0,
+        (sum, item) => sum + item.quantity,
+      ),
       lowStock: low,
     );
   }

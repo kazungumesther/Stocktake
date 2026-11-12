@@ -27,8 +27,7 @@ class SyncUiState {
       );
 }
 
-/// Decides *when* to sync: shortly after local changes, when the connection
-/// comes back, after signing in, and once a minute to pick up retries.
+
 class SyncController extends Notifier<SyncUiState> {
   Timer? _debounce;
   Timer? _periodic;
@@ -53,8 +52,7 @@ class SyncController extends Notifier<SyncUiState> {
     _connectivity = Connectivity().onConnectivityChanged.listen((_) => syncSoon());
     _auth = Supabase.instance.client.auth.onAuthStateChange.listen((_) => syncSoon());
 
-    // Sync when new unsynced changes appear (not on every re-count, which would
-    // loop while an item is waiting out its backoff).
+    
     var last = 0;
     _unsynced = ref
         .read(inventoryRepositoryProvider)

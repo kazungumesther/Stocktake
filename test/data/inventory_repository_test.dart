@@ -39,7 +39,7 @@ void main() {
 
     // Pretend it had failed to sync a few times.
     await db.update(db.stockItems).replace(original.copyWith(
-          syncStatus: SyncStatus.failed,
+         syncStatus: SyncStatus.pending,
           attempts: 3,
         ));
     final failed = (await repo.byId(id))!;

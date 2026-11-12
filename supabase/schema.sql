@@ -1,5 +1,4 @@
--- Run this once in the Supabase SQL editor (same project as Pipeline is fine).
--- It adds a stock_items table for the Stocktake app.
+
 
 create table stock_items (
   -- The app creates the id on the device, so items can exist before they sync.

@@ -1,6 +1,6 @@
 import '../../data/local/database.dart';
 
-/// Turns the item list into CSV text.
+
 String itemsToCsv(List<StockItem> items) {
   const header = ['Name', 'Quantity', 'Unit', 'Location', 'Notes', 'Updated'];
   final rows = items.map(
@@ -18,8 +18,7 @@ String itemsToCsv(List<StockItem> items) {
 
 String _cell(String value) {
   var text = value;
-  // Spreadsheet apps run cells that start with = + - @ as formulas, which is a
-  // known injection risk for exported data. A leading quote makes them plain text.
+  
   if (RegExp(r'^[=+\-@\t\r]').hasMatch(text)) text = "'$text";
   if (RegExp(r'[",\n\r]').hasMatch(text)) {
     return '"${text.replaceAll('"', '""')}"';

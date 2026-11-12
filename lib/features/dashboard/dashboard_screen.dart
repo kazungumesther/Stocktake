@@ -15,12 +15,16 @@ class DashboardScreen extends ConsumerWidget {
     final unsynced = ref.watch(unsyncedCountProvider).value ?? 0;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Dashboard')),
+      appBar: AppBar(
+        title: const Text('Dashboard'),
+      ),
       body: items.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('Something went wrong: $error')),
+        error: (error, _) =>
+            Center(child: Text('Something went wrong: $error')),
         data: (list) {
           final stats = InventoryStats.from(list);
+
           return Align(
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
@@ -32,15 +36,24 @@ class DashboardScreen extends ConsumerWidget {
                     spacing: 12,
                     runSpacing: 12,
                     children: [
-                      _StatCard(label: 'Items', value: '${stats.itemCount}'),
-                      _StatCard(label: 'Total units', value: '${stats.totalQuantity}'),
+                      _StatCard(
+                        label: 'Items',
+                        value: '${stats.itemCount}',
+                      ),
+                      _StatCard(
+                        label: 'Total units',
+                        value: '${stats.totalQuantity}',
+                      ),
                       _StatCard(
                         label: 'Low stock',
                         value: '${stats.lowStock.length}',
                         warn: stats.lowStock.isNotEmpty,
                       ),
                       if (AppConfig.hasSupabase)
-                        _StatCard(label: 'Waiting to sync', value: '$unsynced'),
+                        _StatCard(
+                          label: 'Waiting to sync',
+                          value: '$unsynced',
+                        ),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -64,12 +77,38 @@ class DashboardScreen extends ConsumerWidget {
           );
         },
       ),
+
+      
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: 0,
+        onDestinationSelected: (index) {
+          if (index == 1) {
+            context.go('/');
+          }
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.inventory_2_outlined),
+            selectedIcon: Icon(Icons.inventory_2),
+            label: 'Inventory',
+          ),
+        ],
+      ),
     );
   }
 }
 
 class _StatCard extends StatelessWidget {
-  const _StatCard({required this.label, required this.value, this.warn = false});
+  const _StatCard({
+    required this.label,
+    required this.value,
+    this.warn = false,
+  });
 
   final String label;
   final String value;
@@ -78,6 +117,7 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+
     return SizedBox(
       width: 160,
       child: Card(
@@ -86,7 +126,10 @@ class _StatCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: Theme.of(context).textTheme.bodyMedium),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
               const SizedBox(height: 4),
               Text(
                 value,

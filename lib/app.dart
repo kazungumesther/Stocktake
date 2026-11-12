@@ -13,7 +13,7 @@ import 'features/inventory/inventory_list_screen.dart';
 import 'features/inventory/item_form_screen.dart';
 import 'features/sync/sync_controller.dart';
 
-/// Tells the router to re-check its redirect whenever the user signs in or out.
+
 class _AuthRefresh extends ChangeNotifier {
   _AuthRefresh() {
     _subscription = Supabase.instance.client.auth.onAuthStateChange

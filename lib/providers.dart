@@ -17,7 +17,7 @@ final inventoryRepositoryProvider = Provider<InventoryRepository>((ref) {
   return InventoryRepository(ref.watch(databaseProvider));
 });
 
-/// Null in local-only mode (no Supabase settings).
+
 final remoteInventoryProvider = Provider<RemoteInventory?>((ref) {
   if (!AppConfig.hasSupabase) return null;
   return SupabaseRemoteInventory(Supabase.instance.client);
@@ -39,13 +39,13 @@ class SearchQuery extends Notifier<String> {
 final searchQueryProvider =
     NotifierProvider<SearchQuery, String>(SearchQuery.new);
 
-/// The list on the home screen: filtered by the search box.
+
 final inventoryItemsProvider = StreamProvider<List<StockItem>>((ref) {
   final query = ref.watch(searchQueryProvider);
   return ref.watch(inventoryRepositoryProvider).watchAll(query: query);
 });
 
-/// Every item, ignoring the search box. The dashboard uses this.
+
 final allItemsProvider = StreamProvider<List<StockItem>>((ref) {
   return ref.watch(inventoryRepositoryProvider).watchAll();
 });

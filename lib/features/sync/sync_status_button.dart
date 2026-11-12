@@ -5,8 +5,7 @@ import '../../core/config.dart';
 import '../../providers.dart';
 import 'sync_controller.dart';
 
-/// Cloud icon in the app bar: shows whether everything is saved on the server,
-/// and syncs when tapped. Hidden in local-only mode.
+
 class SyncStatusButton extends ConsumerWidget {
   const SyncStatusButton({super.key});
 
